@@ -4,55 +4,54 @@ import Order from "../models/orderModel.js";
 //@access private
 const addOrderItems = asyncHandler(async (req, res) => {
 
-  console.log('user id : ' , req.user) ; 
-});
-  // const { 
-  //   orderItems,
-  //   shippingAddress,
-  //   paymentMethod,
-  //   paymentResult,
-  //   itemPrice,
-  //   taxPrice,
-  //   shippingPrice,
-  //   totalPrice,
-  //   isPaid,
-  //   paidAt,
-  //   isDelivered,
-  //   deliveredAt,
-  // } = req.body;
+ 
+  const { 
+    orderItems,
+    shippingAddress,
+    paymentMethod,
+    paymentResult,
+    itemPrice,
+    taxPrice,
+    shippingPrice,
+    totalPrice,
+    isPaid,
+    paidAt,
+    isDelivered,
+    deliveredAt,
+  } = req.body;
 
  
 
-  // // ถ้ามี orderItems แต่ตัวแปร empty ก็คือยังไม่มี order
-  // if (orderItems && orderItems.length === 0) {
-  //   res.status(400);
-  //   throw new Error("No order items");
-  // } else {
-  //   const order = new Order({
-  //     orderItems: orderItems.map((x) => ({
-  //       ...x,
-  //       product: x._id,
-  //       _id: undefined,
-  //     })),
-  //     user: req.user._id,
-  //     shippingAddress,
-  //     paymentMethod,
-  //     paymentResult,
-  //     itemPrice,
-  //     taxPrice,
-  //     shippingPrice,
-  //     totalPrice,
-  //     isPaid,
-  //     paidAt,
-  //     isDelivered,
-  //     deliveredAt,
-  //   });
+  // ถ้ามี orderItems แต่ตัวแปร empty ก็คือยังไม่มี order
+  if (orderItems && orderItems.length === 0) {
+    res.status(400);
+    throw new Error("No order items");
+  } else {
+    const order = new Order({
+      orderItems: orderItems.map((x) => ({
+        ...x,
+        product: x._id,
+        _id: undefined,
+      })),
+      user: req.user._id,
+      shippingAddress,
+      paymentMethod,
+      paymentResult,
+      itemPrice,
+      taxPrice,
+      shippingPrice,
+      totalPrice,
+      isPaid,
+      paidAt,
+      isDelivered,
+      deliveredAt,
+    });
 
-  //   const createdOrder = await order.save();
+    const createdOrder = await order.save();
 
-  //   res.status(201).json(createdOrder);
-//   }
-// });
+    res.status(201).json(createdOrder);
+  }
+});
 
 //@desc get logged in user orders
 //@route Get /api/orders/myorders

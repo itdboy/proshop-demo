@@ -1,30 +1,40 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
+import React from "react";
+import ReactDOM from "react-dom/client";
 //import "bootstrap/dist/css/bootstrap.min.css";
-import {createBrowserRouter, createRoutesFromElements,Route,RouterProvider} from 'react-router-dom';
-import './assets/styles/bootstrap.custom.css';
-import './assets/styles/index.css';
-import App from './App';
-import reportWebVitals from './reportWebVitals';
-import HomeScreen from './screens/HomeScreen';
+import {
+  createBrowserRouter,
+  createRoutesFromElements,
+  Route,
+  RouterProvider,
+} from "react-router-dom";
+import "./assets/styles/bootstrap.custom.css";
+import "./assets/styles/index.css";
+import App from "./App";
+import reportWebVitals from "./reportWebVitals";
+import HomeScreen from "./screens/HomeScreen";
 import ProductScreen from "./screens/ProductScreen";
+import { Provider } from "react-redux";
+import store from "./store.js" 
+
 
 const router = createBrowserRouter(
   createRoutesFromElements(
-    <Route path="/" element={<App/>}> 
-       {/* index=true เพื่อที่จะไม่ให้แสดงหลายครั่ง */}
-      <Route index={true} path="/" element={<HomeScreen/>}/>
-      <Route path="/product/:id" element={<ProductScreen/>}/>
+    <Route path="/" element={<App />}>
+      {/* index=true เพื่อที่จะไม่ให้แสดงหลายครั่ง */}
+      <Route index={true} path="/" element={<HomeScreen />} />
+      <Route path="/product/:id" element={<ProductScreen />} />
     </Route>
   )
-)
+);
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
+const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <React.StrictMode>
-  {/* จะแทนที่ด้วย RouterProvider   <App /> */}
-    <RouterProvider router={router} /> 
+    <Provider store={store}>
+      {/* จะแทนที่ด้วย RouterProvider   <App /> */}
+      <RouterProvider router={router} />
+    </Provider>
   </React.StrictMode>
 );
- 
+
 reportWebVitals();

@@ -13,9 +13,17 @@ import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 import HomeScreen from "./screens/HomeScreen";
 import ProductScreen from "./screens/ProductScreen";
-import { Provider } from "react-redux";
-import store from "./store.js" 
+import CartScreen from "./screens/CartScreen";
+import LoginScreen from "./screens/LoginScreen.jsx";
+import RegisterScreen from "./screens/RegisterScreen.jsx";
+import ShippingScreen from "./screens/ShippingScreen.jsx";
+import PrivateRoute from "./components/PrivateRoute.jsx";
+import PaymentScreen from "./screens/PaymentScreen.jsx";
+import PlaceOrderScreen from "./screens/PlaceOrderScreen.jsx";
+import OrderScreen from "./screens/OrderScreen.jsx";
 
+import { Provider } from "react-redux";
+import store from "./store.js";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -23,6 +31,17 @@ const router = createBrowserRouter(
       {/* index=true เพื่อที่จะไม่ให้แสดงหลายครั่ง */}
       <Route index={true} path="/" element={<HomeScreen />} />
       <Route path="/product/:id" element={<ProductScreen />} />
+      <Route path="/cart" element={<CartScreen />} />
+      <Route path="/login" element={<LoginScreen />} />
+      <Route path="/register" element={<RegisterScreen />} />
+
+      {/* ป้องกันไม่ให้พิมพ url โดยตรง ถ้าอยู่ใน private ต้อง login ก่อนเสมอ */}
+      <Route path="" element={<PrivateRoute />}>
+        <Route path="/shipping" element={<ShippingScreen />} />
+        <Route path="/payment" element={<PaymentScreen />} />
+        <Route path="/placeorder" element={<PlaceOrderScreen />} />
+        <Route path="/order/:id" element={<OrderScreen />} />
+      </Route>
     </Route>
   )
 );

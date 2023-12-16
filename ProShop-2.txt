@@ -1,5 +1,7 @@
 Proshop-2
 
+rafce = react arrow function constant 
+ 
 ติดตั้ง react
 
 /frontend 
@@ -25,6 +27,7 @@ license : MIT
 npm start
 npm i express
 npm i -D nodemon concurrently
+npm i color
 
 แก้ไข package.json
  "scripts": {
@@ -84,3 +87,15 @@ npm run data:import
 1. สร้างใน mongodb server สามารถเป็นตัวเล็กทั้งหมดได้
 2. สร้างใน digitalocean ต้องขึ้นต้นด้วยตัวใหญ่
 3. ใน db.js ต้องแก้ไขตัวอักษรให้ตรงกับชื่อ database ด้วย
+
+ที่ frontend ติดตั้ง redux
+npm i @reduxjs/toolkit react-redux 
+
+npm i react-toastify
+
+install jwt at frontend  สำหรับสร้าง cookie ที่ server
+npm i jsonwebtoken
+
+สำหรับส่ง cookie จาก server ไปที่ client 
+npm i cookie-parser
+

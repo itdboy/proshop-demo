@@ -1,11 +1,9 @@
 import asyncHandler from "../middleware/asyncHandler.js";
-import Order from "../models/orderModel.js"; 
+import Order from "../models/orderModel.js";
 //@route Get /api/orders
 //@access private
 const addOrderItems = asyncHandler(async (req, res) => {
-
- 
-  const { 
+  const {
     orderItems,
     shippingAddress,
     paymentMethod,
@@ -19,8 +17,6 @@ const addOrderItems = asyncHandler(async (req, res) => {
     isDelivered,
     deliveredAt,
   } = req.body;
-
- 
 
   // ถ้ามี orderItems แต่ตัวแปร empty ก็คือยังไม่มี order
   if (orderItems && orderItems.length === 0) {
@@ -79,24 +75,58 @@ const getOrderById = asyncHandler(async (req, res) => {
 });
 
 //@desc update order to paid
-//@route Get /api/orders/:id/pay
+//@route Put /api/orders/:id/pay
 //@access private
 const updateOrderToPaid = asyncHandler(async (req, res) => {
-  res.send("update order to paid");
+  console.log(req);
+  const order = await Order.findById(req.params.id);
+
+  if (order) {
+    order.isPaid = true;
+    order.paidAt = Date.now();
+    order.paymentResult = {
+      id: req.body.id,
+      status: req.body.status,
+      update_time: req.body.update_time,
+      email_address: req.body.payer.email_address,
+    };
+
+    const updatedOrder = await order.save();
+
+    res.json(updatedOrder);
+  } else {
+    res.status(404);
+    throw new Error("Order not found");
+  }
 });
 
 //@desc update order to delivery
 //@route Get /api/orders/:id/deliver
 //@access PrivateAdmin
 const updateOrderToDelivered = asyncHandler(async (req, res) => {
-  res.send("update order to deliver");
+  const order = await Order.findById(req.params.id);
+
+  if (order) {
+    order.isDelivered = true;
+    order.deliveredAt = Date.now();
+
+    const updatedOrder = await order.save();
+
+    res.status(200).json(updatedOrder);
+  } else {
+    res.status(404);
+    throw new Error("Order not found");
+  }
 });
+
+
 
 //@desc get all orders
 //@route Get /api/orders
 //@access PrivateAdmin
 const getOrders = asyncHandler(async (req, res) => {
-  res.send("get all orders");
+  const orders = await Order.find({}).populate("user", "id name");
+  res.status(200).json(orders);
 });
 
 export {

@@ -25,7 +25,6 @@ const ProductListScreen = () => {
       try {
         await createProduct();
         refetch();
-        toast.success("Created Product Success");
       } catch (err) {
         toast.error(err?.data?.message || err.error);
       }

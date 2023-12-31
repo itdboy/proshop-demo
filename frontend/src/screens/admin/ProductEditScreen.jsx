@@ -8,6 +8,7 @@ import { toast } from "react-toastify";
 import {
   useUpdateProductMutation,
   useGetProductDetailsQuery,
+  useUploadProductImageMutation,
 } from "../../slices/productsApiSlice";
 
 const ProductEditScreen = () => {
@@ -32,7 +33,31 @@ const ProductEditScreen = () => {
   const [updateProduct, { isLoading: loadingUpdate }] =
     useUpdateProductMutation();
 
+  const [uploadProductImage, { isLoading: loadingUpload }] =
+    useUploadProductImageMutation();
+
   const navigate = useNavigate();
+
+  const submitHandler = async (e) => {
+    e.preventDefault();
+    try {
+      await updateProduct({
+        productId,
+        name,
+        price,
+        image,
+        brand,
+        category,
+        description,
+        countInStock,
+      }).unwrap();
+      toast.success("Product updated");
+      refetch();
+      navigate("/admin/productlist");
+    } catch (err) {
+      toast.error(err?.data?.message || err.error);
+    }
+  };
 
   useEffect(() => {
     if (product) {
@@ -46,26 +71,42 @@ const ProductEditScreen = () => {
     }
   }, [product]);
 
-  const submitHandler = async (e) => {
-    e.preventDefault();
-    const updatedProduct = {
-      productId,
-      name,
-      price,
-      image,
-      brand,
-      category,
-      countInStock,
-      description,
-    } ;
+  // const submitHandler = async (e) => {
+  //   e.preventDefault();
+  //   const updatedProduct = {
+  //     productId,
+  //     name,
+  //     price,
+  //     image,
+  //     brand,
+  //     category,
+  //     countInStock,
+  //     description,
+  //   };
 
-    const result = await updateProduct(updatedProduct);
-    if (result.error) {
-      toast.error(result.error);
-    } else {
-      toast.success("Product updated");
-      refetch();
-      navigate("/admin/productlist");
+  //   const result = await updateProduct(updatedProduct);
+  //   if (result.error) {
+  //     toast.error(result.error);
+  //   } else {
+  //     toast.success("Product updated");
+  //     refetch();
+  //     navigate("/admin/productlist");
+  //   }
+  // };
+
+  const uploadFileHandler = async (e) => {
+    //console.log(e.target.files[0]);
+    const formData = new FormData();
+    formData.append("image", e.target.files[0]);
+
+    //console.log(formData);
+    try {
+      // จำ unwrap ต้องมี () ไม่งันจะไม่ทำงาน
+      const res = await uploadProductImage(formData).unwrap();
+      toast.success(res.message);
+      setImage(res.image);
+    } catch (err) {
+      toast.error(err?.data?.message || err.error);
     }
   };
 
@@ -104,14 +145,20 @@ const ProductEditScreen = () => {
               ></Form.Control>
             </Form.Group>
 
-            <Form.Group controlId="image" className="my-2">
+            <Form.Group controlId="image">
               <Form.Label>Image</Form.Label>
               <Form.Control
                 type="text"
-                placeholder="Enter name"
+                placeholder="Enter image url"
                 value={image}
                 onChange={(e) => setImage(e.target.value)}
               ></Form.Control>
+              <Form.Control
+                label="Choose File"
+                onChange={uploadFileHandler}
+                type="file"
+              ></Form.Control>
+              {loadingUpload && <Loader />}
             </Form.Group>
 
             <Form.Group controlId="brand" className="my-2">

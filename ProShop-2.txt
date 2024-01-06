@@ -1,5 +1,11 @@
 Proshop-2
 
+
+paypal
+
+user : sb-re8lj28811639@personal.example.com
+password : p_eu5O#l
+
 rafce = react arrow function constant 
  
 ติดตั้ง react
@@ -99,3 +105,37 @@ npm i jsonwebtoken
 สำหรับส่ง cookie จาก server ไปที่ client 
 npm i cookie-parser
 
+
+PayPal API credentials 
+AeQLhn6tTd7O2SbG84AYN0K5yvGsrkBZnINc63_AGJCOpnhuopjhfI20yOyZfdNu61lRp-f4IOYcqiKz
+
+ที่ frontend ติดตั้ง paypal
+npm i @paypal/react-paypal-js
+
+
+Chaining in JavaScript
+?.
+เนื่องจาก เกิดเหตุการณื ก่อน API เรียก option chaining ?. เป็นการเช็ึคว่า ค่า string นี้จะมีค่าที่ truncated วางหรื่อเปล่า
+
+paypal
+
+user : sb-re8lj28811639@personal.example.com
+password : 
+
+install multer สำหรับ upload file
+- ติดตั้งที่ proshop-v2 directory
+npm i multer
+
+
+install helmet title web
+cd frontend
+npm i react-helmet-async
+
+bulid project
+npm run build
+
+จะได้ build folder ใน frontend
+
+- ให้เปลี่ยน สถานะ NODE_ENV=production (development) ใน backend/.env
+- แล้ว พิมพ์ npm run server
+- เปิด local:5000 (โปรแกรมจะทำการ run )

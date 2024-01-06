@@ -110,6 +110,7 @@ const ProfileScreen = () => {
       </Col>
       <Col md={9}>
         <h2>My Orders</h2>
+        {loadingUpdateProfile && <Loader />}
         {isLoading ? (
           <Loader />
         ) : error ? (

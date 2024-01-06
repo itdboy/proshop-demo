@@ -8,28 +8,43 @@ import { toast } from "react-toastify";
 import {
   useGetProductsQuery,
   useCreateProductMutation,
+  useDeleteProductMutation,
 } from "../../slices/productsApiSlice";
 
 const ProductListScreen = () => {
   const { data: products, isLoading, error, refetch } = useGetProductsQuery();
 
-  const [createProduct, { isLoading: loadingCreate }] =
-    useCreateProductMutation();
+  const [createProduct, { isLoading: loadingCreate }] = useCreateProductMutation();
 
-  const deleteHandler = (id) => {
-    console.log("delete product", id);
-  };
 
-  const createProductHandler = async () => {
-    if (window.confirm("Are you sure you want to create a new product?")) {
+  const [deleteProduct, {isLoading : loadingDelete}] = useDeleteProductMutation();
+
+  const deleteHandler = async (id) => {
+    if(window.confirm('Are you sure?')){
       try {
-        await createProduct();
+        await deleteProduct(id);
+        // คำส่ั้ง refetch จะไปเรียก useGetProductsQuery เพื้่ออ่านข้อมูลใหม่        
         refetch();
       } catch (err) {
         toast.error(err?.data?.message || err.error);
       }
     }
   };
+
+  const createProductHandler = async () => {
+    if (window.confirm("Are you sure you want to create a new product?")) {
+      try {
+        // จะสร้่าง sample product ให้จากนั้นก็เข้าไป edit เพื่อแก้ไข
+        await createProduct();
+        refetch();
+        toast.success("Success product delete it")
+      } catch (err) {
+        toast.error(err?.data?.message || err.error);
+      }
+    }
+  };
+
+ 
 
   return (
     <>
@@ -46,6 +61,7 @@ const ProductListScreen = () => {
       </Row>
 
       {loadingCreate && <Loader />}
+      {loadingDelete && <Loader />}
 
       {isLoading ? (
         <Loader />

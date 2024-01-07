@@ -1,46 +1,49 @@
 import asyncHandler from "../middleware/asyncHandler.js";
 import Order from "../models/orderModel.js";
+import Product from "../models/productModel.js";
+import { calcPrices } from "../utils/calcPrices.js";
+import { verifyPayPalPayment, checkIfNewTransaction } from "../utils/paypal.js";
+
 //@route Get /api/orders
 //@access private
 const addOrderItems = asyncHandler(async (req, res) => {
-  const {
-    orderItems,
-    shippingAddress,
-    paymentMethod,
-    paymentResult,
-    itemPrice,
-    taxPrice,
-    shippingPrice,
-    totalPrice,
-    isPaid,
-    paidAt,
-    isDelivered,
-    deliveredAt,
-  } = req.body;
-
-  // ถ้ามี orderItems แต่ตัวแปร empty ก็คือยังไม่มี order
+  const { orderItems, shippingAddress, paymentMethod } = req.body;
+    
   if (orderItems && orderItems.length === 0) {
     res.status(400);
     throw new Error("No order items");
   } else {
-    const order = new Order({
-      orderItems: orderItems.map((x) => ({
-        ...x,
-        product: x._id,
+    // get the ordered items from our database
+    const itemsFromDB = await Product.find({
+      _id: { $in: orderItems.map((x) => x._id) },
+    });
+
+    // map over the order items and use the price from our items from database
+    const dbOrderItems = orderItems.map((itemFromClient) => {
+      const matchingItemFromDB = itemsFromDB.find(
+        (itemFromDB) => itemFromDB._id.toString() === itemFromClient._id
+      );
+      return {
+        ...itemFromClient,
+        product: itemFromClient._id,
+        price: matchingItemFromDB.price,
         _id: undefined,
-      })),
+      };
+    });
+
+    // calculate prices
+    const { itemsPrice, taxPrice, shippingPrice, totalPrice } =
+      calcPrices(dbOrderItems);
+
+    const order = new Order({
+      orderItems: dbOrderItems,
       user: req.user._id,
       shippingAddress,
       paymentMethod,
-      paymentResult,
-      itemPrice,
+      itemsPrice,
       taxPrice,
       shippingPrice,
       totalPrice,
-      isPaid,
-      paidAt,
-      isDelivered,
-      deliveredAt,
     });
 
     const createdOrder = await order.save();
@@ -48,6 +51,52 @@ const addOrderItems = asyncHandler(async (req, res) => {
     res.status(201).json(createdOrder);
   }
 });
+// const addOrderItems = asyncHandler(async (req, res) => {
+//   const {
+//     orderItems,
+//     shippingAddress,
+//     paymentMethod,
+//     paymentResult,
+//     itemPrice,
+//     taxPrice,
+//     shippingPrice,
+//     totalPrice,
+//     isPaid,
+//     paidAt,
+//     isDelivered,
+//     deliveredAt,
+//   } = req.body;
+
+//   // ถ้ามี orderItems แต่ตัวแปร empty ก็คือยังไม่มี order
+//   if (orderItems && orderItems.length === 0) {
+//     res.status(400);
+//     throw new Error("No order items");
+//   } else {
+//     const order = new Order({
+//       orderItems: orderItems.map((x) => ({
+//         ...x,
+//         product: x._id,
+//         _id: undefined,
+//       })),
+//       user: req.user._id,
+//       shippingAddress,
+//       paymentMethod,
+//       paymentResult,
+//       itemPrice,
+//       taxPrice,
+//       shippingPrice,
+//       totalPrice,
+//       isPaid,
+//       paidAt,
+//       isDelivered,
+//       deliveredAt,
+//     });
+
+//     const createdOrder = await order.save();
+
+//     res.status(201).json(createdOrder);
+//   }
+// });
 
 //@desc get logged in user orders
 //@route Get /api/orders/myorders
@@ -78,10 +127,20 @@ const getOrderById = asyncHandler(async (req, res) => {
 //@route Put /api/orders/:id/pay
 //@access private
 const updateOrderToPaid = asyncHandler(async (req, res) => {
-  console.log(req);
+  const { verified, value } = await verifyPayPalPayment(req.body.id);
+  if (!verified) throw new Error("Payment not verified");
+
+  // check if this transaction has been used before
+  const isNewTransaction = await checkIfNewTransaction(Order, req.body.id);
+  if (!isNewTransaction) throw new Error("Transaction has been used before");
+
   const order = await Order.findById(req.params.id);
 
   if (order) {
+    // check the correct amount was paid
+    const paidCorrectAmount = order.totalPrice.toString() === value;
+    if (!paidCorrectAmount) throw new Error("Incorrect amount paid");
+
     order.isPaid = true;
     order.paidAt = Date.now();
     order.paymentResult = {
@@ -99,6 +158,29 @@ const updateOrderToPaid = asyncHandler(async (req, res) => {
     throw new Error("Order not found");
   }
 });
+
+// const updateOrderToPaid = asyncHandler(async (req, res) => {
+//   console.log(req);
+//   const order = await Order.findById(req.params.id);
+
+//   if (order) {
+//     order.isPaid = true;
+//     order.paidAt = Date.now();
+//     order.paymentResult = {
+//       id: req.body.id,
+//       status: req.body.status,
+//       update_time: req.body.update_time,
+//       email_address: req.body.payer.email_address,
+//     };
+
+//     const updatedOrder = await order.save();
+
+//     res.json(updatedOrder);
+//   } else {
+//     res.status(404);
+//     throw new Error("Order not found");
+//   }
+// });
 
 //@desc update order to delivery
 //@route Get /api/orders/:id/deliver

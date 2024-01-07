@@ -14,20 +14,23 @@ import {
 } from "../../slices/productsApiSlice";
 
 const ProductListScreen = () => {
-  const {pageNumber} = useParams();
+  const { pageNumber } = useParams();
 
-  const { data, isLoading, error, refetch } = useGetProductsQuery({pageNumber});
+  const { data, isLoading, error, refetch } = useGetProductsQuery({
+    pageNumber,
+  });
 
-  const [createProduct, { isLoading: loadingCreate }] = useCreateProductMutation();
+  const [createProduct, { isLoading: loadingCreate }] =
+    useCreateProductMutation();
 
-
-  const [deleteProduct, {isLoading : loadingDelete}] = useDeleteProductMutation();
+  const [deleteProduct, { isLoading: loadingDelete }] =
+    useDeleteProductMutation();
 
   const deleteHandler = async (id) => {
-    if(window.confirm('Are you sure?')){
+    if (window.confirm("Are you sure?")) {
       try {
         await deleteProduct(id);
-        // คำส่ั้ง refetch จะไปเรียก useGetProductsQuery เพื้่ออ่านข้อมูลใหม่        
+        // คำส่ั้ง refetch จะไปเรียก useGetProductsQuery เพื้่ออ่านข้อมูลใหม่
         refetch();
       } catch (err) {
         toast.error(err?.data?.message || err.error);
@@ -41,14 +44,12 @@ const ProductListScreen = () => {
         // จะสร้่าง sample product ให้จากนั้นก็เข้าไป edit เพื่อแก้ไข
         await createProduct();
         refetch();
-        toast.success("Success product delete it")
+        toast.success("Success product delete it");
       } catch (err) {
         toast.error(err?.data?.message || err.error);
       }
     }
   };
-
- 
 
   return (
     <>
@@ -70,7 +71,7 @@ const ProductListScreen = () => {
       {isLoading ? (
         <Loader />
       ) : error ? (
-        <Message variant="danger">{error}</Message>
+        <Message variant="danger">{error.data.message}</Message>
       ) : (
         <>
           <Table striped hover responsive className="table-sm">

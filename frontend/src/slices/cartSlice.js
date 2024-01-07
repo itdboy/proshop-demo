@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { updateCart } from "../utils/cardUtils";
+ import { updateCart } from "../utils/cardUtils";
 
 // ตรวจเช็คถ้า cookie ถ้ามี localStorage ชื่อ cart ก็ให้ดึง localStorage ขื่อ cart ออกมา
 // แต่ถ้าไม่มีให้สร้าง cartItem array, shippingAddress, paymentMethod (default เป็น Paypal)
@@ -35,28 +35,35 @@ const cartSlice = createSlice({
         state.cartItems = [...state.cartItems, item];
       }
 
-      return updateCart(state);
+      //localStorage.setItem("cart", JSON.stringify(state));
+          return updateCart(state, item);
     },
 
     removeFromCart: (state, action) => {
       state.cartItems = state.cartItems.filter((x) => x._id !== action.payload);
+      //localStorage.setItem("cart", JSON.stringify(state));
       return updateCart(state);
     },
 
     saveShippingAddress: (state, action) => {
       state.shippingAddress = action.payload;
-      return updateCart(state);
+      localStorage.setItem("cart", JSON.stringify(state));
+      // return updateCart(state);
     },
 
     savePaymentMethod: (state, action) => {
       state.paymentMethod = action.payload;
-      return updateCart(state);
+      localStorage.setItem("cart", JSON.stringify(state));
+      // return updateCart(state);
     },
 
     clearCartItems: (state, action) => {
       state.cartItems = [];
-      return updateCart(state);
+      localStorage.setItem("cart", JSON.stringify(state));
+      // return updateCart(state);
     },
+
+    resetCart: (state) => (state = initialState),
   },
 });
 
@@ -67,6 +74,7 @@ export const {
   saveShippingAddress,
   savePaymentMethod,
   clearCartItems,
+  resetCart,
 } = cartSlice.actions;
 
 export default cartSlice.reducer;
